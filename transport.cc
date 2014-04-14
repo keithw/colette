@@ -31,14 +31,14 @@ void linguini( const int argc, const char * const argv[] )
 
   while ( true ) {
     /* receive the packet */
-    const auto addr_packet = listener.recvfrom();
-    const Packet received_packet( addr_packet.second );
+    const auto addr_ts_packet = listener.recv();
+    const Packet packet( get<2>( addr_ts_packet ) );
 
     /* send an acknowledgment */
-    const Packet ack( sequence_number++, received_packet );
-    listener.sendto( addr_packet.first, ack.str() );
+    const Packet ack( sequence_number++, packet );
+    listener.sendto( get<0>( addr_ts_packet ), ack.str() );
 
-    cerr << "Acked " << received_packet.sequence_number() << " to " << addr_packet.first.str() << endl;
+    cerr << "Acked " << packet.sequence_number() << " to " << get<0>( addr_ts_packet ).str() << endl;
   }
 }
 
@@ -61,13 +61,13 @@ void colette( const int argc, const char * const argv[] )
   Poller poller;
   poller.add_action( Poller::Action( destination.fd(), Direction::In,
 				     [&] () {
-				       Packet ack( destination.read() );
-				       const auto now = timestamp();
-				       if ( ack.is_ack() ) {
-					 cerr << "Got ack for " << ack.ack_sequence_number()
-					      << " with RTT " << now - ack.ack_send_timestamp() << endl;
+				       const auto addr_ts_packet = destination.recv();
+				       const Packet packet( get<2>( addr_ts_packet ) );
+				       if ( packet.is_ack() ) {
+					 cerr << "Got ack for " << packet.ack_sequence_number()
+					      << " with RTT " << get<1>( addr_ts_packet ) - packet.ack_send_timestamp() << endl;
 				       } else {
-					 cerr << "Error, got non-ack " << ack.sequence_number() << endl;
+					 cerr << "Error, got non-ack " << packet.sequence_number() << endl;
 				       }
 				       return ResultType::Continue;
 				     } ) );

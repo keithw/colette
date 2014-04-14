@@ -50,7 +50,7 @@ public:
 
     FileDescriptor & fd( void ) { return fd_; }
 
-    std::pair< Address, std::string > recvfrom( void );
+    std::tuple< Address, uint64_t, std::string > recv( void );
     void sendto( const Address & destination, const std::string & payload );
 
     Address original_dest( void ) const;
