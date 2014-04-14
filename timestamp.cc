@@ -5,13 +5,28 @@
 #include "timestamp.hh"
 #include "util.hh"
 
+/* milliseconds per second */
+static const uint64_t THOUSAND = 1000;
+
+/* nanoseconds per millisecond */
+static const uint64_t MILLION = THOUSAND * THOUSAND;
+
+/* nanoseconds per second */
+static const uint64_t BILLION = THOUSAND * MILLION;
+
+/* epoch */
+static const uint64_t EPOCH = 1397448000000;
+
 uint64_t timestamp( void )
 {
     timespec ts;
     SystemCall( "clock_gettime", clock_gettime( CLOCK_REALTIME, &ts ) );
 
-    uint64_t millis = ts.tv_nsec / 1000000;
-    millis += uint64_t( ts.tv_sec ) * 1000;
+    return timestamp( ts );
+}
 
-    return millis;
+uint64_t timestamp( const timespec & ts )
+{
+    const uint64_t nanos = ts.tv_sec * BILLION + ts.tv_nsec;
+    return nanos / MILLION - EPOCH;
 }

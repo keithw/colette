@@ -7,4 +7,6 @@
 
 uint64_t timestamp( void );
 
+uint64_t timestamp( const timespec & ts );
+
 #endif /* TIMESTAMP_HH */

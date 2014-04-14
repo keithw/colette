@@ -6,7 +6,7 @@
 int main( int argc, char *argv[] )
 {
   try {
-    colette( argc, argv );
+    linguini( argc, argv );
   } catch ( const Exception & e ) {
     e.perror();
     return EXIT_FAILURE;
